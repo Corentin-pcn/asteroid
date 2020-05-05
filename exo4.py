@@ -92,12 +92,12 @@ def R3(a):
 def vec_Ju(t):
     a = 5.202603 #au
     e = 0.048498
-    i = np.radians(-1.303)
-    Om = np.radians(-100.46)
-    om = np.radians(86.13)
+    i = np.deg2rad(-1.303)
+    Om = np.deg2rad(-100.46)
+    om = np.deg2rad(86.13)
     
     n = 0.01720209895/np.sqrt(a**3)
-    M0 = 20.02
+    M0 = np.deg2rad(20.02)
     M = M0 + n*t
     E = Newton(M,fE,fdE,e)
     X = a*(np.cos(E)-e)
