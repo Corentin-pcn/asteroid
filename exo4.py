@@ -22,6 +22,21 @@ def f(R,t):
     
     return(np.array([R[3], R[4], R[5], xpp, ypp, zpp]))
 
+def fE(E,e,M):
+    return(E - e*np.sin(E) - M)
+
+def fdE(E,e):
+    return(1 - e*np.cos(E))
+
+def Newton(M,f,fd,e,eps=0.000001):
+    dif = 2*eps
+    x = M
+    while (dif > eps):
+        x1 = x - (f(x,e,M)/fd(x,e))
+        dif = np.abs(x1-x)
+        x = x1
+    return(x)
+
 def RK4(h,y,f,t=0):
     k1 = f(y, t)
     k2 = f(y+((h/2)*k1), t+(h/2))
@@ -55,13 +70,41 @@ def conv_OE(R, Rp, mu):
     kx, ky, kz = np.cross(R,Rp)/(np.linalg.norm(R)*np.linalg.norm(Rp))
     i = np.arccos(kz)
     return([a,e,i])
+
+def R1(a):
+    A = np.zeros([3,3])
+    A[0,0] = 1
+    A[1,1] = np.cos(a)
+    A[2,2] = np.cos(a)
+    A[2,1] = -np.sin(a)
+    A[1,2] = np.sin(a)
+    return(A)
+
+def R3(a):
+    A = np.zeros([3,3])
+    A[2,2] = 1
+    A[0,0] = np.cos(a)
+    A[1,1] = np.cos(a)
+    A[1,0] = -np.sin(a)
+    A[0,1] = np.sin(a)
+    return(A)
     
 def vec_Ju(t):
-    a = 5.2
-    theta_p = (2*np.pi)/(11.86*365.25)
-    x = a*np.cos(theta_p*t)
-    y = a*np.sin(theta_p*t)
-    return([x,y,0])
+    a = 5.202603 #au
+    e = 0.048498
+    i = np.radians(-1.303)
+    Om = np.radians(-100.46)
+    om = np.radians(86.13)
+    
+    n = 0.01720209895/np.sqrt(a**3)
+    M0 = 20.02
+    M = M0 + n*t
+    E = Newton(M,fE,fdE,e)
+    X = a*(np.cos(E)-e)
+    Y = a*np.sqrt(1-(e**2))*np.sin(E)
+    A = np.array([X, Y, 0])
+    x = np.matmul(R3(Om),np.matmul(R1(i),np.matmul(R3(om),A)))
+    return(x[0], x[1], x[2])
 
 a = 2
 k = 0.01720209895
@@ -75,7 +118,7 @@ t, R, Rp, Rn, Rpn = calc_orb(h, R0, D_time(h, End))
 t2, R2, Rp2, R2n, Rp2n = calc_orb(-h, [R[-1][0], R[-1][1], R[-1][2], Rp[-1][0], Rp[-1][1], Rp[-1][2]], D_time(h, End, s="b"))
 
 plt.figure(1)
-plt.scatter([i[0] for i in R],[i[1] for i in R])
+plt.scatter([i[0] for i in R],[i[1] for i in R],marker='.')
 plt.axis('equal')
 plt.show()
 
