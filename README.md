@@ -1,2 +1,4 @@
 # asteroid
-Simulation of an asteroid trajectory. Taking in account different planets perturbations.
+Simulation of asteroid trajectory.
+
+Taking in account different planets perturbations.
